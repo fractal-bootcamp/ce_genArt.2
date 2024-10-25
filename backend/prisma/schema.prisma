@@ -1,0 +1,47 @@
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+// setup Prisma Client 
+generator client {
+    provider = "prisma-client-js"
+}
+
+// "application model" - describes User in app 
+model User {
+    id        String    @id @default(cuid())
+    createdAt DateTime  @default(now())
+    email     String    @unique
+    name      String?
+    Artwork   Artwork[]
+    Like      Likes[]
+}
+
+// describes Post from User 
+model Artwork {
+    id            String   @id @default(cuid())
+    createdAt     DateTime @default(now())
+    published     Boolean  @default(false)
+    title         String   @db.VarChar(255) // limit 50 characters 
+    author        User     @relation(fields: [authorId], references: [id])
+    authorId      String
+    Like          Likes[]
+    configuration Json
+
+    // with this index under Artwork - db can jump directly to all artworks by author 
+    @@index([authorId]) // find all artworks by author 'X'
+}
+
+model Likes {
+    id        String  @id @default(cuid())
+    artworkId String
+    Artwork   Artwork @relation(fields: [artworkId], references: [id])
+    userId    String
+    User      User    @relation(fields: [userId], references: [id])
+
+    // database constraints 
+    @@unique([artworkId, userId]) // compoound unique constraint - ensures use can only like artwork once - 
+    @@index([userId]) // index on the userId field - "show me all the artworks this user liked"
+    @@index([artworkId]) // index on artworkId field - "show me how many likes this artwork has"
+}
