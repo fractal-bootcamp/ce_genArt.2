@@ -1,7 +1,8 @@
-// app/layout.tsx
-import { ClerkProvider } from "@clerk/nextjs";
-import "./globals.css";
+import { Scene3D } from "./cube";
 import Navbar from "./components/Navbar";
+import { ClerkProvider } from "@clerk/nextjs";
+import { neobrutalism, dark } from "@clerk/themes";
+import "./globals.css";
 
 export default function RootLayout({
   children,
@@ -9,12 +10,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ClerkProvider>
+    <ClerkProvider
+      appearance={{
+        baseTheme: [dark],
+      }}
+    >
       <html lang="en">
         <body>
-          {/* Separate component for better organization */}
+          {children}
           <Navbar />
-          <main>{children}</main>
         </body>
       </html>
     </ClerkProvider>
